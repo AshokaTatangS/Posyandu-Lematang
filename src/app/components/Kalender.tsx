@@ -12,11 +12,11 @@ import { Dialog, Transition } from "@headlessui/react";
 import { EventSourceInput } from "@fullcalendar/core/index.js";
 
 interface Event {
-  title: string;
   start: Date | string;
   allDay: boolean;
   id: number;
-  description: string;  // Menambahkan field description
+  description: string;
+  location: string;
 }
 
 export default function CalendarApp() {
@@ -25,12 +25,19 @@ export default function CalendarApp() {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
   const [newEvent, setNewEvent] = useState<Event>({
-    title: "",
     start: "",
     allDay: false,
     id: 0,
-    description: "", // Menambahkan description pada state
+    description: "",
+    location: "",
   });
+  const [filterLocation, setFilterLocation] = useState<string>("");
+  const [showFilterDropdown, setShowFilterDropdown] = useState(false);
+
+  // Filtered Events
+  const filteredEvents = filterLocation
+    ? allEvents.filter((event) => event.location === filterLocation)
+    : allEvents;
 
   function handleDateClick(arg: { date: Date; allDay: boolean }) {
     setNewEvent({ ...newEvent, start: arg.date, allDay: arg.allDay, id: new Date().getTime() });
@@ -39,7 +46,7 @@ export default function CalendarApp() {
 
   function handleEventClick(eventInfo: any) {
     const clickedEvent = allEvents.find((event) => event.id === Number(eventInfo.event.id));
-    setSelectedEvent(clickedEvent || null); // Simpan event yang diklik
+    setSelectedEvent(clickedEvent || null);
     setShowDeleteModal(true);
   }
 
@@ -51,13 +58,6 @@ export default function CalendarApp() {
     setSelectedEvent(null);
   }
 
-  function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
-    setNewEvent({
-      ...newEvent,
-      title: e.target.value,
-    });
-  }
-
   function handleDescriptionChange(e: React.ChangeEvent<HTMLTextAreaElement>) {
     setNewEvent({
       ...newEvent,
@@ -65,45 +65,38 @@ export default function CalendarApp() {
     });
   }
 
+  function handleLocationChange(e: React.ChangeEvent<HTMLSelectElement>) {
+    setNewEvent({
+      ...newEvent,
+      location: e.target.value,
+    });
+  }
+
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    setAllEvents([...allEvents, newEvent]); // Masukkan event baru ke dalam daftar
+    setAllEvents([...allEvents, newEvent]);
     setShowAddModal(false);
-    setNewEvent({ title: "", start: "", allDay: false, id: 0, description: "" }); // Reset setelah submit
+    setNewEvent({ start: "", allDay: false, id: 0, description: "", location: "" });
   }
 
   return (
-    <div className="min-h-screen bg-[#E9FFE9] font-sans">
-      {/* Header */}
-      <header className="bg-[#63C96B] text-white py-4 px-6 flex items-center justify-between">
-        <h1 className="text-2xl font-bold">LEMANDU</h1>
-        <nav className="space-x-6">
-          <a href="#beranda" className="hover:underline">
-            Beranda
-          </a>
-          <a href="#kalender" className="hover:underline">
-            Kalender
-          </a>
-          <a href="#statistik" className="hover:underline">
-            Statistik
-          </a>
-        </nav>
-      </header>
-
-      {/* Main Content */}
+    <div className="min-h-screen bg-white font-sans">
       <main className="py-8 px-6 flex flex-col justify-center">
-        <h2 className="text-3xl font-bold text-center text-[#4F874F] mb-8">
+        <h2 className="text-3xl font-bold text-center text-black mb-8">
           Kalender Kegiatan Posyandu Lematang
         </h2>
-        <div className="w-[80%] mx-auto text-black">
+        <div className="w-[80%] mx-auto text-black relative">
           <FullCalendar
             plugins={[dayGridPlugin, interactionPlugin]}
             headerToolbar={{
               left: "prev,next today",
               center: "title",
-              right: "",
+              right: "filter",
             }}
-            events={allEvents as EventSourceInput}
+            events={filteredEvents.map((event) => ({
+              ...event,
+              title: event.location, // Gunakan location sebagai title
+            })) as EventSourceInput}
             nowIndicator={true}
             editable={true}
             selectable={true}
@@ -112,15 +105,46 @@ export default function CalendarApp() {
             eventClick={handleEventClick}
             eventContent={(eventInfo) => (
               <div>
-                <strong>{eventInfo.event.title}</strong> {/* Tampilkan judul */}
+                <strong>{eventInfo.event.title}</strong> {/* Tampilkan location sebagai title */}
                 <div>{eventInfo.event.extendedProps.description}</div> {/* Tampilkan deskripsi */}
               </div>
             )}
+            customButtons={{
+              filter: {
+                text: "Filter",
+                click: () => {
+                  setShowFilterDropdown(!showFilterDropdown); // Toggle dropdown
+                },
+              },
+            }}
           />
+          {/* Dropdown Filter */}
+          {showFilterDropdown && (
+            <div className="absolute top-16 right-0 bg-white shadow-lg rounded-md p-4 w-48 z-10">
+              <label htmlFor="filter-location" className="block text-sm font-medium mb-2">
+                Filter by Location
+              </label>
+              <select
+                id="filter-location"
+                value={filterLocation}
+                onChange={(e) => setFilterLocation(e.target.value)}
+                className="block w-full p-2 border rounded-md text-black"
+              >
+                <option value="">All Locations</option>
+                <option value="Lematang Atas">Lematang Atas</option>
+                <option value="Lematang Bawah">Lematang Bawah</option>
+                <option value="Lematang Sari">Lematang Sari</option>
+                <option value="Lubuk Bais">Lubuk Bais</option>
+                <option value="Mojo Songo">Mojo Songo</option>
+                <option value="Rilau Gadis">Rilau Gadis</option>
+                <option value="Kampung Sawah">Kampung Sawah</option>
+                <option value="Jalan Baru">Jalan Baru</option>
+              </select>
+            </div>
+          )}
         </div>
       </main>
 
-      {/* Modals */}
       {/* Add Event Modal */}
       <Transition.Root show={showAddModal} as={Fragment}>
         <Dialog as="div" className="relative z-10" onClose={() => setShowAddModal(false)}>
@@ -132,14 +156,22 @@ export default function CalendarApp() {
               <Dialog.Panel className="bg-white rounded-lg p-6">
                 <h3 className="text-lg font-semibold text-black mb-4">Add Event</h3>
                 <form onSubmit={handleSubmit}>
-                  <input
-                    type="text"
+                  <select
+                    value={newEvent.location}
+                    onChange={handleLocationChange}
                     className="block w-full p-2 border text-black rounded-md mb-4"
-                    value={newEvent.title}
-                    onChange={handleChange}
-                    placeholder="Event Title"
                     required
-                  />
+                  >
+                    <option value="">Select Location</option>
+                    <option value="Lematang Atas">Lematang Atas</option>
+                    <option value="Lematang Bawah">Lematang Bawah</option>
+                    <option value="Lematang Sari">Lematang Sari</option>
+                    <option value="Lubuk Bais">Lubuk Bais</option>
+                    <option value="Mojo Songo">Mojo Songo</option>
+                    <option value="Rilau Gadis">Rilau Gadis</option>
+                    <option value="Kampung Sawah">Kampung Sawah</option>
+                    <option value="Jalan Baru">Jalan Baru</option>
+                  </select>
                   <textarea
                     className="block w-full p-2 border text-black rounded-md mb-4"
                     value={newEvent.description}
@@ -149,7 +181,7 @@ export default function CalendarApp() {
                   />
                   <button
                     type="submit"
-                    className="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600"
+                    className="bg-black text-white px-4 py-2 rounded-md hover:bg-white hover:text-black"
                   >
                     Add Event
                   </button>
@@ -173,23 +205,26 @@ export default function CalendarApp() {
                 {selectedEvent && (
                   <div>
                     <p>
-                      Are you sure you want to delete <b>{selectedEvent.title}</b>?
+                      Are you sure you want to delete the event at{" "}
+                      <strong>{selectedEvent.location}</strong>?
                     </p>
-                    <p className="mt-2"><strong>Description:</strong> {selectedEvent.description}</p> {/* Menampilkan deskripsi */}
+                    <p className="mt-2">
+                      <strong>Description:</strong> {selectedEvent.description}
+                    </p>
                   </div>
                 )}
-                <div className="mt-4 flex justify-end space-x-4">
-                  <button
-                    onClick={() => setShowDeleteModal(false)}
-                    className="bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-600"
-                  >
-                    Cancel
-                  </button>
+                <div className="mt-4 flex justify-end">
                   <button
                     onClick={handleDeleteEvent}
-                    className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600"
+                    className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 mr-2"
                   >
                     Delete
+                  </button>
+                  <button
+                    onClick={() => setShowDeleteModal(false)}
+                    className="bg-gray-300 text-black px-4 py-2 rounded-md hover:bg-gray-400"
+                  >
+                    Cancel
                   </button>
                 </div>
               </Dialog.Panel>

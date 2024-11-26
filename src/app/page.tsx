@@ -1,9 +1,27 @@
-// import Login from "./components/Login";
-import Beranda from "./components/Beranda";
-// import Register from "./components/Register";
+"use client";
 
-export default function Home() {
+import React from "react";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import Navbar from "./components/Navbar";
+import Kalender from "./components/Kalender";
+import Login from "./components/Login";
+import Register from "./components/Register";
+
+function App() {
   return (
-    <Beranda/>
-  )
+    <Router>
+      <div className="flex mt-10">
+        <Navbar />
+        <div className="flex-1">
+          <Routes>
+            <Route path="/" element={<Kalender />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+          </Routes>
+        </div>
+      </div>
+    </Router>
+  );
 }
+
+export default App;
