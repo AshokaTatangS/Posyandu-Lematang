@@ -1,0 +1,111 @@
+/* Import Montserrat font */
+@import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Parkinsans:wght@609&display=swap");
+
+/* Tailwind base styles */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Root variables for light and dark modes */
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+
+body {
+  color: var(--foreground);
+  background: var(--background);
+  font-family: "Montserrat", Arial, Helvetica, sans-serif;
+}
+
+h1 {
+  color: var(--foreground);
+  font-family: "Parkinsans", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 800;
+  font-style: normal;
+}
+
+/* Additional custom styles */
+:root {
+  @apply bg-gray-50;
+}
+
+input {
+  @apply px-2;
+}
+
+/* FullCalendar customizations */
+.fc-header-toolbar {
+  display: inline-block;
+  padding: 4px 4px;
+  @apply space-x-8;
+}
+
+.fc-day {
+  @apply m-8;
+}
+
+.fc-daygrid-day-number {
+  color: black !important;
+}
+
+.fc-scrollgrid-sync-table {
+  @apply w-full;
+}
+
+.fc-view {
+  @apply w-full h-full lg:h-3/4 xl:h-2/3 bg-white;
+}
+
+.fc-h-event {
+  background-color: #ffcbc1 !important;
+  border: 1px solid #000000 !important;
+}
+
+.fc-h-event,
+.fc-h-event * {
+  color: white !important;
+}
+
+.fc .fc-daygrid-day.fc-day-today {
+  background-color: #ffebe7 !important; /* Warna latar */
+  color: #000000 !important; /* Warna teks */
+}
+
+.fc .fc-button {
+  background-color: #ffabab !important;
+  outline: none !important; /* Menghapus outline default */
+  box-shadow: none !important;
+}
+
+.fc .fc-button:hover {
+  background-color: #ffb9b9 !important;
+}
+
+.fc .fc-button:active {
+  border: none !important; /* Border hilang saat tombol aktif */
+}
+
+/* Menampilkan border hitam kembali setelah tombol tidak aktif (mouse release) */
+.fc .fc-button {
+  border: 1px solid #000000 !important; /* Border hitam default */
+}
+
+/* Pastikan border tetap ada saat tombol dalam keadaan focus (misalnya menggunakan keyboard) */
+.fc .fc-button:active:focus {
+  border: 1px solid #000000 !important; /* Border tetap hitam saat fokus */
+}
+
+/* Ketika tombol dilepaskan (mouse release), border kembali terlihat */
+.fc .fc-button:not(:active):focus {
+  border: 1px solid #000000 !important; /* Border kembali setelah mouse release */
+}
