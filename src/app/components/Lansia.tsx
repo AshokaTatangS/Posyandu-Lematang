@@ -1,37 +1,42 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useDataContext } from "./DataContext";
-import { FaBaby } from "react-icons/fa";
+import { FaUserNurse } from "react-icons/fa";
 
-const Bayi: React.FC = () => {
-  const { dataBayi, deleteBayi } = useDataContext();
+const Lansia: React.FC = () => {
+  const { lansiaData = [], deleteLansia } = useDataContext(); // Menambahkan default array kosong untuk lansiaData
   const [searchTerm, setSearchTerm] = useState("");
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
-  const [deleteTarget, setDeleteTarget] = useState<Partial<Bayi> | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<Partial<Lansia> | null>(null);
   const navigate = useNavigate();
 
+  // Handle perubahan input pencarian
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value);
   };
 
-  const filteredData = dataBayi.filter(
-    (bayi) =>
-      bayi.nama.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      bayi.nik.toLowerCase().includes(searchTerm.toLowerCase())
+  // Filter data lansia berdasarkan nama atau NIK
+  const filteredData = lansiaData.filter(
+    (lansia) =>
+      lansia.nama.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      lansia.nik.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const startEditing = (bayi: Bayi) => {
-    navigate("/TambahBayi", { state: { editData: bayi } });
+  // Mulai proses edit lansia
+  const startEditing = (lansia: Lansia) => {
+    navigate("/TambahLansia", { state: { editData: lansia } });
   };
 
-  const confirmDelete = (bayi: Bayi) => {
-    setDeleteTarget(bayi);
+  // Konfirmasi hapus data lansia
+  const confirmDelete = (lansia: Lansia) => {
+    setDeleteTarget(lansia);
     setShowDeleteConfirmation(true);
   };
 
+  // Proses penghapusan data
   const handleDelete = () => {
     if (deleteTarget?.nik) {
-      deleteBayi(deleteTarget.nik);
+      deleteLansia(deleteTarget.nik);
     }
     setShowDeleteConfirmation(false);
     setDeleteTarget(null);
@@ -40,8 +45,8 @@ const Bayi: React.FC = () => {
   return (
     <div className="p-8 bg-gradient-to-t from-[#FFE2DC] to-white min-h-screen">
       <h1 className="text-2xl font-bold text-black mb-6 flex items-center">
-        <FaBaby className="mr-2" />
-        Data Bayi
+        <FaUserNurse className="mr-2" />
+        Data Lansia
       </h1>
       <div className="flex justify-between mb-4">
         <input
@@ -52,7 +57,7 @@ const Bayi: React.FC = () => {
           className="px-4 py-2 border border-gray-300 text-black rounded-md"
         />
         <Link
-          to="/TambahBayi"
+          to="/TambahLansia"
           className="px-4 py-2 bg-[#48D1CC] font-medium text-black rounded-md hover:bg-gray-200"
         >
           Tambah Data
@@ -62,22 +67,24 @@ const Bayi: React.FC = () => {
         <table className="w-full border-collapse rounded-md overflow-hidden">
           <thead className="bg-[#FFABAB] text-gray-900">
             <tr>
-              <th className="px-4 py-2 text-left">NIK</th>
-              <th className="px-4 py-2 text-left">Nama</th>
-              <th className="px-4 py-2 text-left">Jenis Kelamin</th>
-              <th className="px-4 py-2 text-left">Umur</th>
-              <th className="px-4 py-2 text-left">Aksi</th>
+              <th className="border-b border-white px-4 py-2 text-center">NIK</th>
+              <th className="border-b border-white px-4 py-2 text-center">Nama</th>
+              <th className="border-b border-white px-4 py-2 text-center">Tanggal Lahir</th>
+              <th className="border-b border-white px-4 py-2 text-center">Umur</th>
+              <th className="border-b border-white px-4 py-2 text-center">Alamat</th>
+              <th className="border-b border-white px-4 py-2 text-center">Telepon</th>
+              <th className="border-b border-white px-4 py-2 text-center">Aksi</th>
             </tr>
           </thead>
           <tbody>
             {filteredData.length === 0 ? (
               <tr>
-                <td colSpan={5} className="text-center py-4 text-gray-500">
-                  Tidak ada data bayi.
+                <td colSpan={7} className="text-center py-4 text-gray-500">
+                  Tidak ada data lansia.
                 </td>
               </tr>
             ) : (
-              filteredData.map((bayi, index) => (
+              filteredData.map((lansia, index) => (
                 <tr
                   key={index}
                   className={
@@ -86,19 +93,21 @@ const Bayi: React.FC = () => {
                       : "bg-[#FFEEEA] text-black"
                   }
                 >
-                  <td className="px-4 py-2">{bayi.nik}</td>
-                  <td className="px-4 py-2">{bayi.nama}</td>
-                  <td className="px-4 py-2">{bayi.jenisKelamin}</td>
-                  <td className="px-4 py-2">{bayi.umur}</td>
-                  <td className="px-4 py-2 flex gap-2">
+                  <td className="border-b border-white px-4 py-2">{lansia.nik}</td>
+                  <td className="border-b border-white px-4 py-2">{lansia.nama}</td>
+                  <td className="border-b border-white px-4 py-2">{lansia.tanggallahir}</td>
+                  <td className="border-b border-white px-4 py-2">{lansia.umur}</td>
+                  <td className="border-b border-white px-4 py-2">{lansia.alamat}</td>
+                  <td className="border-b border-white px-4 py-2">{lansia.telepon}</td>
+                  <td className="border-b border-white px-4 py-2 flex gap-2">
                     <button
-                      onClick={() => startEditing(bayi)}
+                      onClick={() => startEditing(lansia)}
                       className="px-2 py-1 bg-yellow-500 text-white rounded"
                     >
                       Edit
                     </button>
                     <button
-                      onClick={() => confirmDelete(bayi)}
+                      onClick={() => confirmDelete(lansia)}
                       className="px-2 py-1 bg-red-500 text-white rounded"
                     >
                       Hapus
@@ -138,4 +147,4 @@ const Bayi: React.FC = () => {
   );
 };
 
-export default Bayi;
+export default Lansia;
