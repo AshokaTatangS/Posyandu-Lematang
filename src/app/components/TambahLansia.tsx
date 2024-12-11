@@ -1,16 +1,18 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useDataContext } from "./DataContext";
 
 const TambahLansia: React.FC = () => {
-  const { addLansia } = useDataContext(); // Pastikan addLansia tersedia di context
+  const { addLansia, updateLansia } = useDataContext();
   const navigate = useNavigate();
+  const location = useLocation();
+  const initialData = location.state?.initialData;
+  const [umur, setUmur] = useState<string>();
 
   const [formData, setFormData] = useState({
     nik: "",
     nama: "",
     tanggallahir: "",
-    umur: "",
     telepon: "",
     alamat: "",
     bb: "",
@@ -29,7 +31,16 @@ const TambahLansia: React.FC = () => {
   const [errors, setErrors] = useState<string[]>([]);
   const [step, setStep] = useState(1);
 
-  // Fungsi untuk menghitung umur
+  // Muat data awal jika dalam mode edit
+  useEffect(() => {
+    if (initialData) {
+      setFormData(initialData);
+      if (initialData.tanggallahir) {
+        setUmur(calculateAge(initialData.tanggallahir));
+      }
+    }
+  }, [initialData]);
+
   const calculateAge = (tanggallahir: string) => {
     const birthDate = new Date(tanggallahir);
     const today = new Date();
@@ -61,22 +72,11 @@ const TambahLansia: React.FC = () => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
 
-    if (name === "tanggallahir" && value) {
-      // Mengecek apakah format tanggal valid
-      const isValidDate = !isNaN(Date.parse(value));
-      if (isValidDate) {
-        setFormData({ ...formData, umur: calculateAge(value) });
-        setErrors((prevErrors) => prevErrors.filter((error) => error !== "Tanggal lahir tidak valid."));
-      } else {
-        setErrors((prevErrors) => [
-          ...prevErrors,
-          "Tanggal lahir tidak valid.",
-        ]);
-      }
+    if (name === "tanggallahir") {
+      setUmur(calculateAge(value));
     }
   };
 
-  // Validasi setiap langkah form
   const validateCurrentStep = () => {
     const requiredFieldsByStep = {
       1: [
@@ -108,7 +108,7 @@ const TambahLansia: React.FC = () => {
   };
 
   const handleBack = () => {
-    setStep((prev) => Math.max(prev - 1, 1));  // Ensure step does not go below 1
+    setStep((prev) => Math.max(prev - 1, 1));
     setErrors([]);
   };
 
@@ -117,7 +117,15 @@ const TambahLansia: React.FC = () => {
 
     if (validateCurrentStep()) {
       const dataToSubmit = { ...formData, umur: calculateAge(formData.tanggallahir) };
-      addLansia(dataToSubmit);
+
+      if (initialData) {
+        // Update mode
+        updateLansia(dataToSubmit);
+      } else {
+        // Add mode
+        addLansia(dataToSubmit);
+      }
+
       navigate("/lansia");
     }
   };
@@ -125,7 +133,7 @@ const TambahLansia: React.FC = () => {
   return (
     <div className="p-12 bg-gradient-to-t from-[#FFE2DC] to-white min-h-screen">
       <h2 className="text-2xl text-black font-bold mb-4">
-        Tambah Data Lansia/Orang Tua
+        {initialData ? "Edit Data Lansia/Orang Tua" : "Tambah Data Lansia/Orang Tua"}
       </h2>
 
       {errors.length > 0 && (
@@ -162,9 +170,13 @@ const TambahLansia: React.FC = () => {
               name="tanggallahir"
               value={formData.tanggallahir}
               onChange={handleChange}
-              className="p-2 bg-white/30 border rounded-lg"
+              className="p-2 bg-white/30 backdrop-blur-md border border-white/50 rounded-lg shadow-lg"
             />
-            {formData.umur && <p>Umur: {formData.umur}</p>}
+            {umur && (
+              <div className="text-black mt-2">
+                <p>Umur: {umur}</p>
+              </div>
+            )}
             <select
               name="jeniskelamin"
               value={formData.jeniskelamin}
@@ -285,7 +297,7 @@ const TambahLansia: React.FC = () => {
             type="submit"
             className="px-6 py-2 bg-blue-500 text-white rounded"
           >
-            Submit
+            {initialData ? "Update" : "Submit"}
           </button>
         </div>
       </form>

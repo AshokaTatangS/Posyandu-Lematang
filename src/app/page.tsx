@@ -8,7 +8,11 @@ import Login from "./components/Login";
 import Register from "./components/Register";
 import Bayi from "./components/Bayi";
 import TambahBayi from "./components/TambahBayi";
+import IbuHamil from "./components/IbuHamil";
 import { DataProvider } from "./components/DataContext"; // Import DataProvider
+import TambahIbu from "./components/TambahIbu";
+import Lansia from "./components/Lansia";
+import TambahLansia from "./components/TambahLansia";
 
 function App() {
   return (
@@ -21,9 +25,13 @@ function App() {
             <Routes>
               <Route path="/" element={<Kalender />} />
               <Route path="/bayi" element={<Bayi />} />
+              <Route path="/ibu-hamil" element={<IbuHamil />} />
+              <Route path="/lansia" element={<Lansia />} />
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
               <Route path="/TambahBayi" element={<TambahBayi />} />
+              <Route path="/TambahIbu" element={<TambahIbu />} />
+              <Route path="/TambahLansia" element={<TambahLansia />} />
             </Routes>
           </div>
         </div>

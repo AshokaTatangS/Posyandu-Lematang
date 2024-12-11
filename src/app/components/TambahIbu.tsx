@@ -122,7 +122,7 @@ const TambahIbu: React.FC = () => {
       } else {
         addIbu({ ...formData, umur });
       }
-      navigate("/ibu");
+      navigate("/ibu-hamil");
     }
   };
 

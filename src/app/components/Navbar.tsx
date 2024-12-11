@@ -48,9 +48,9 @@ const Navbar: React.FC = () => {
             </li>
             <li>
               <Link
-                to="/catatan-kesehatan/ibu-hamil"
+                to="/ibu-hamil"
                 className={`block py-2 px-4 text-gray-600 hover:bg-pink-50 ${isActive(
-                  "/catatan-kesehatan/ibu-hamil"
+                  "/ibu-hamil"
                 )}`}
               >
                 Ibu Hamil
@@ -58,9 +58,9 @@ const Navbar: React.FC = () => {
             </li>
             <li>
               <Link
-                to="/catatan-kesehatan/lansia"
+                to="/lansia"
                 className={`block py-2 px-4 text-gray-600 hover:bg-pink-50 ${isActive(
-                  "/catatan-kesehatan/lansia"
+                  "/lansia"
                 )}`}
               >
                 Lansia

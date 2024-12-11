@@ -4,7 +4,7 @@ import { useDataContext } from "./DataContext";
 import { FaUserNurse } from "react-icons/fa";
 
 const Lansia: React.FC = () => {
-  const { lansiaData = [], deleteLansia } = useDataContext(); // Menambahkan default array kosong untuk lansiaData
+  const { dataLansia = [], deleteLansia } = useDataContext(); // Menambahkan default array kosong untuk dataLansia
   const [searchTerm, setSearchTerm] = useState("");
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<Partial<Lansia> | null>(null);
@@ -16,7 +16,7 @@ const Lansia: React.FC = () => {
   };
 
   // Filter data lansia berdasarkan nama atau NIK
-  const filteredData = lansiaData.filter(
+  const filteredData = dataLansia.filter(
     (lansia) =>
       lansia.nama.toLowerCase().includes(searchTerm.toLowerCase()) ||
       lansia.nik.toLowerCase().includes(searchTerm.toLowerCase())
