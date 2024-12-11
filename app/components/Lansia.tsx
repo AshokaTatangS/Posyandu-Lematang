@@ -1,9 +1,14 @@
-import React from "react";
-import { Link } from "react-router-dom";
+import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { useDataContext } from "./DataContext";
 import { MdElderly } from "react-icons/md";
 
 const Lansia: React.FC = () => {
+  const { lansiaData = [], deleteLansia } = useDataContext(); // Menambahkan default array kosong untuk lansiaData
+  const [searchTerm, setSearchTerm] = useState("");
+  const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<Partial<Lansia> | null>(null);
+  const navigate = useNavigate();
   const { dataLansia } = useDataContext();
 
   // Fungsi untuk menghitung umur dari tanggal lahir
@@ -14,6 +19,33 @@ const Lansia: React.FC = () => {
     const ageMonth = today.getMonth() - birthDate.getMonth();
     const months = ageMonth < 0 ? 12 + ageMonth : ageMonth;
     return `${ageYear} tahun ${months} bulan`;
+  };
+
+  // Filter data lansia berdasarkan nama atau NIK
+  const filteredData = lansiaData.filter(
+    (lansia) =>
+      lansia.nama.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      lansia.nik.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  // Mulai proses edit lansia
+  const startEditing = (lansia: Lansia) => {
+    navigate("/TambahLansia", { state: { editData: lansia } });
+  };
+
+  // Konfirmasi hapus data lansia
+  const confirmDelete = (lansia: Lansia) => {
+    setDeleteTarget(lansia);
+    setShowDeleteConfirmation(true);
+  };
+
+  // Proses penghapusan data
+  const handleDelete = () => {
+    if (deleteTarget?.nik) {
+      deleteLansia(deleteTarget.nik);
+    }
+    setShowDeleteConfirmation(false);
+    setDeleteTarget(null);
   };
 
   if (!dataLansia || !Array.isArray(dataLansia)) {
@@ -101,6 +133,7 @@ const Lansia: React.FC = () => {
               <th className="border-b border-white px-4 py-2 text-center">
                 Keterangan
               </th>
+              <th className="border-b border-white px-4 py-2 text-center">Aksi</th>
             </tr>
           </thead>
           <tbody>
@@ -168,12 +201,50 @@ const Lansia: React.FC = () => {
                   <td className="border-b border-white px-4 py-2">
                     {lansia.keterangan || "N/A"}
                   </td>
+                  <td className="border-b border-white px-4 py-2 flex gap-2">
+                    <button
+                      onClick={() => startEditing(lansia)}
+                      className="px-2 py-1 bg-yellow-500 text-white rounded"
+                    >
+                      Edit
+                    </button>
+                    <button
+                      onClick={() => confirmDelete(lansia)}
+                      className="px-2 py-1 bg-red-500 text-white rounded"
+                    >
+                      Hapus
+                    </button>
+                  </td>
                 </tr>
               ))
             )}
           </tbody>
         </table>
       </div>
+      {showDeleteConfirmation && deleteTarget && (
+        <div className="fixed inset-0 bg-gray-800 bg-opacity-75 flex justify-center items-center">
+          <div className="bg-white p-4 rounded shadow-lg text-black">
+            <p>
+              Apakah Anda yakin ingin menghapus data {deleteTarget.nama} dengan
+              NIK {deleteTarget.nik}?
+            </p>
+            <div className="flex justify-end gap-2 mt-4">
+              <button
+                onClick={handleDelete}
+                className="px-4 py-2 bg-red-500 text-white rounded"
+              >
+                Hapus
+              </button>
+              <button
+                onClick={() => setShowDeleteConfirmation(false)}
+                className="px-4 py-2 bg-gray-300 text-black rounded"
+              >
+                Batal
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

@@ -58,10 +58,16 @@ interface Lansia {
 interface DataContextProps {
   dataBayi: Bayi[];
   addBayi: (bayi: Bayi) => void;
+  deleteBayi: (nik:string) => void; 
+  updateBayi: (nik: string, updatedData: Partial<Bayi>) => void;
   dataIbu: IbuHamil[];
   addIbu: (ibu: IbuHamil) => void;
+  deleteIbu: (nik:string) => void; 
+  updateIbu: (nik: string, updatedData: Partial<IbuHamil>) => void;
   dataLansia: Lansia[];
   addLansia: (lansia: Lansia) => void;
+  deleteLansia: (nik:string) => void; 
+  updateLansia: (nik: string, updatedData: Partial<Lansia>) => void;
 }
 
 const DataContext = createContext<DataContextProps | undefined>(undefined);
@@ -73,26 +79,56 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({
   const [dataIbu, setDataIbu] = useState<IbuHamil[]>([]);
   const [dataLansia, setDataLansia] = useState<Lansia[]>([]);
 
-  const addBayi = (bayi: Bayi) => {
-    setDataBayi((prev) => [...prev, bayi]);
-  };
+  // Bayi
+  const addBayi = (bayi: Bayi) => setDataBayi((prev) => [...prev, bayi]);
+  const deleteBayi = (nik: string) =>{
+    setDataBayi((prev) => prev.filter((b) => b.nik !== nik));
+  }
+  const updateBayi = (nik: string, updatedData: Partial<Bayi>) =>
+    setDataBayi((prev) =>
+      prev.map((b) => (b.nik === nik ? { ...b, ...updatedData } : b))
+    );
 
-  const addIbu = (ibu: IbuHamil) => {
-    setDataIbu((prev) => [...prev, ibu]);
-  };
+  // Ibu Hamil
+  const addIbu = (ibu: IbuHamil) => setDataIbu((prev) => [...prev, ibu]);
+  const deleteIbu = (nik: string) =>
+    setDataIbu((prev) => prev.filter((i) => i.nik !== nik));
+  const updateIbu = (nik: string, updatedData: Partial<IbuHamil>) =>
+    setDataIbu((prev) =>
+      prev.map((i) => (i.nik === nik ? { ...i, ...updatedData } : i))
+    );
 
-  const addLansia = (lansia: Lansia) => {
-    setDataLansia((prev) => [...prev, lansia]);
-  };
+  // Lansia
+  const addLansia = (lansia: Lansia) => setDataLansia((prev) => [...prev, lansia]);
+  const deleteLansia = (nik: string) =>
+    setDataLansia((prev) => prev.filter((l) => l.nik !== nik));
+  const updateLansia = (nik: string, updatedData: Partial<Lansia>) =>
+    setDataLansia((prev) =>
+      prev.map((l) => (l.nik === nik ? { ...l, ...updatedData } : l))
+    );
 
   return (
     <DataContext.Provider
-      value={{ dataBayi, addBayi, dataIbu, addIbu, dataLansia, addLansia }}
+      value={{
+        dataBayi,
+        addBayi,
+        deleteBayi,
+        updateBayi,
+        dataIbu,
+        addIbu,
+        deleteIbu,
+        updateIbu,
+        dataLansia,
+        addLansia,
+        deleteLansia,
+        updateLansia,
+      }}
     >
       {children}
     </DataContext.Provider>
   );
 };
+
 
 export const useDataContext = () => {
   const context = useContext(DataContext);
